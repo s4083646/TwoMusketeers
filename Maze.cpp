@@ -39,17 +39,17 @@ void Maze::undoChanges() {
 void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width, mcpp::Coordinate buildStart) {
     int mazeHeight = 3;
     int border = 1;
-    int y = buildStart.y;
+    int y = buildStart.y - 1;
 
     // Step 1: Flatten terrain to baseY
     for (int row = -border; row < length + border; row++) {
         for (int col = -border; col < width + border; col++) {
             mcpp::Coordinate ground = buildStart + mcpp::Coordinate(row, 0, col);
-            mcpp::Coordinate floor = mcpp::Coordinate(ground.x, y , ground.z);
+            mcpp::Coordinate floor = mcpp::Coordinate(ground.x, y - 1, ground.z);
 
             // Save and set the ground base
             saveBlockChange(floor);
-            mc.setBlock(floor, mcpp::Blocks::AIR);
+            mc.setBlock(floor, mcpp::Blocks::GRASS);
 
             // Clear 3 blocks of air above
             for (int h = 0; h < mazeHeight; ++h) {
@@ -92,7 +92,7 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
             if (maze[row][col] == '.') {
                 if (row == 0 || row == length - 1 || col == 0 || col == width - 1) {
                     mcpp::Coordinate exitTile = buildStart + mcpp::Coordinate(row, 0, col);
-                    mcpp::Coordinate carpet = mcpp::Coordinate(exitTile.x, y, exitTile.z);
+                    mcpp::Coordinate carpet = mcpp::Coordinate(exitTile.x - 1, y, exitTile.z);
                     saveBlockChange(carpet);
                     mc.setBlock(carpet, mcpp::Blocks::BLUE_CARPET);
                     return;  // Only mark one exit
