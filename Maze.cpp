@@ -42,9 +42,9 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
     int y = buildStart.y - 1;
 
     // Step 1: Flatten terrain to baseY
-    for (int row = -border; row < length + border; row++) {
-        for (int col = -border; col < width + border; col++) {
-            mcpp::Coordinate ground = buildStart + mcpp::Coordinate(row, 0, col);
+    for (int z = -border; z < width + border; z++) {
+        for (int x = -border; x < length + border; x++) {
+            mcpp::Coordinate ground = buildStart + mcpp::Coordinate(x, 0, z);
             mcpp::Coordinate floor = mcpp::Coordinate(ground.x, y - 1, ground.z);
 
             // Save and set the ground base
@@ -62,11 +62,11 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
     }
 
     // Step 2: Build maze walls and clear paths
-    for (int row = 0; row < length; row++) {
-        for (int col = 0; col < width; col++) {
-            mcpp::Coordinate cell = buildStart + mcpp::Coordinate(row, 0, col);
+    for (int z = 0; z < width; z++) {
+        for (int x = 0; x < length; x++) {
+            mcpp::Coordinate cell = buildStart + mcpp::Coordinate(x, 0, z);
 
-            if (maze[row][col] == 'x') {
+            if (maze[z][x] == 'x') {
                 // Wall: place 3 acacia blocks
                 for (int h = 0; h < mazeHeight; ++h) {
                     mcpp::Coordinate wall = mcpp::Coordinate(cell.x, y + h, cell.z);
@@ -86,21 +86,21 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
         }
     }
 
-    // Step 3: Place BLUE_CARPET at exit (on top of the exit tile)
-    for (int row = 0; row < length; row++) {
-        for (int col = 0; col < width; col++) {
-            if (maze[row][col] == '.') {
-                if (row == 0 || row == length - 1 || col == 0 || col == width - 1) {
-                    mcpp::Coordinate exitTile = buildStart + mcpp::Coordinate(row, 0, col);
-                    mcpp::Coordinate carpet = mcpp::Coordinate(exitTile.x, y, exitTile.z);
-                    saveBlockChange(carpet);
-                    mc.setBlock(carpet, mcpp::Blocks::BLUE_CARPET);
-                    return;  // Only mark one exit
-                }
+    // Step 3: Place BLUE_CARPET at exit (first border '.' found)
+    for (int z = 0; z < width; z++) {
+        for (int x = 0; x < length; x++) {
+            if (maze[z][x] == '.' &&
+                (z == 0 || z == width - 1 || x == 0 || x == length - 1)) {
+                mcpp::Coordinate exitTile = buildStart + mcpp::Coordinate(x, 0, z);
+                mcpp::Coordinate carpet = mcpp::Coordinate(exitTile.x, y, exitTile.z);
+                saveBlockChange(carpet);
+                mc.setBlock(carpet, mcpp::Blocks::BLUE_CARPET);
+                return;  // Only mark one exit
             }
         }
     }
 }
+
 
 
 void Maze::teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp::Coordinate basePoint) {
@@ -159,9 +159,9 @@ void Maze::teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp:
     int worldY = basePoint.y;
     int worldZ = basePoint.z + furthestRow;
 
-    std::string tpCommand = "tp @a " + std::to_string(worldX) + " "
+    std::string tpCommand = "tp @a " + std::to_string(worldX + 0.5) + " "
                                      + std::to_string(worldY) + " "
-                                     + std::to_string(worldZ);
+                                     + std::to_string(worldZ+ 0.5);
     mc.doCommand(tpCommand);
 
     std::cout << "Teleported to furthest point: (" << worldX << ", " << worldY << ", " << worldZ << ")\n";

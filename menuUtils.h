@@ -51,9 +51,9 @@ void printSolveMazeMenu(void) {
 void printTeamInfo(void) {
     std::cout << std::endl;
     std::cout << "Team members:" << std::endl;
-    std::cout << "\t [1] Marko Cukanic (s4008040@student.rmit.edu.au)" << std::endl;
-    std::cout << "\t [2] Vincent Dao (s4007708@student.rmit.edu.au)" << std::endl;
-    std::cout << "\t [3] Thomas Saleh (s4006031@student.rmit.edu.au)" << std::endl;
+    std::cout << "\t [1] Dhiya Batrisya Binti Norfaiz (s4083646@student.rmit.edu.au)" << std::endl;
+    std::cout << "\t [2] Sahar Zainullah (s3903957@student.rmit.edu.au)" << std::endl;
+    std::cout << "\t [3] Shahira Jasmine Binti Yahaya (s411155@student.rmit.edu.au)" << std::endl;
     std::cout << std::endl;
 }
 
@@ -63,71 +63,3 @@ void printExitMessage(void) {
     std::cout << std::endl;
 }
 
-void readBasePoint(int& xCor, int& yCor, int& zCor) {
-    std::string input;
-    bool validInput = false;
-
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    std::cout << "Enter the basePoint of maze in the format 'X Y Z': " << std::endl;
-
-    while (!validInput) {
-        std::getline(std::cin, input);
-
-        std::istringstream ss(input);
-        if (ss >> xCor >> yCor >> zCor && ss.eof()) {
-            std::cout << "Press Enter again" << std::endl;
-            validInput = true;
-        } else {
-            std::cout << "Invalid input. Please enter the format 'X Y Z'." << std::endl;
-        }
-    }
-}
-
-void readLengthAndWidth(int& length, int& width) {
-    std::string input;
-    bool validInput = false;
-
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::cout << "Enter the length and width of the maze 'L W': " << std::endl;
-
-    while (!validInput) {
-        std::getline(std::cin, input);
-
-        std::stringstream ss(input);
-        if (ss >> length && ss.get() == ' ' && ss >> width && ss.eof()) {
-            if (length > 0 && width > 0) {
-                validInput = true;
-            } else {
-                std::cout << "Both inputs must be positive integers." << std::endl;
-            }
-        } else {
-            std::cout << "Invalid input. Please enter the format [L W] with positive integers." << std::endl;
-        }
-    }
-}
-
-void readMazeStructure(std::vector<std::string>& maze, int length, int width) {
-    std::cout << "Enter the maze structure:" << std::endl;
-    for (int i = 0; i < length; ++i) {
-        std::string row;
-        std::cin >> row;
-        if (static_cast<int>(row.size()) != width) {
-            std::cout << "Invalid input. Row should have exactly " << width << " characters." << std::endl;
-            i--;
-        } else {
-            maze.push_back(row);
-        }
-    }
-}
-
-void printMazeInfo(const std::vector<std::string>& maze, int baseX, int baseY, int baseZ) {
-    std::cout << "Maze read successfully" << std::endl;
-    std::cout << "**Printing Maze**" << std::endl;
-    std::cout << "Base Point: (" << baseX << ", " << baseY << ", " << baseZ << ")" << std::endl;
-    std::cout << "Structure:" << std::endl;
-    for (const std::string& row : maze) {
-        std::cout << row << std::endl;
-    }
-    std::cout << "**End Printing Maze**" << std::endl;
-}

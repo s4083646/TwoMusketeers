@@ -22,7 +22,6 @@ Enter the length and width of maze:
 Enter the maze structure: 
 Maze read successfully
 **Printing Maze**
-BasePoint: (4848, 71, 4369)
 Structure:
 x.xxx
 x.x.x

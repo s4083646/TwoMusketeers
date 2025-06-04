@@ -3,6 +3,7 @@
 #include "menuUtils.h"
 #include "Maze.h"
 #include "Agent.h"
+#include "MazeReadWriteUtils.h"
 
 #define NORMAL_MODE 0
 #define TESTING_MODE 1
@@ -25,9 +26,6 @@ int main(void) {
 
     int userChoice = 0;
     int mazeLength, mazeWidth;
-    int baseX = 0;
-    int baseY = 0;
-    int baseZ = 0;
     std::vector<std::string> maze;
     mcpp::Coordinate buildStart;
 
@@ -44,39 +42,64 @@ int main(void) {
         }
 
         // === 1) Generate Maze ===
+                // === 1) Generate Maze ===
+if (userChoice == 1) {
+    bool noError = true;
+
+    while (noError) {
+        printGenerateMazeMenu();
+        std::cin >> userChoice;
+
         if (userChoice == 1) {
-            bool noError = true;
+            std::vector<std::vector<char>> mazeVec;
+            mcpp::Coordinate base;
+            if (readMaze(mazeVec, base)) {
+                std::cout << "Maze read successfully" << std::endl;
+                printMaze(mazeVec);
 
-            while (noError) {
-                printGenerateMazeMenu();
-                std::cin >> userChoice;
-
-                mcpp::Coordinate playerPos = mc.getPlayerPosition();
-                mcpp::Coordinate front = playerPos + mcpp::Coordinate(1, 0, 0);
-                baseX = front.x;
-                baseY = front.y;
-                baseZ = front.z;
-
-                readLengthAndWidth(mazeLength, mazeWidth);
-
-                if (userChoice == 1) {
-                    maze.clear();
-                    readMazeStructure(maze, mazeLength, mazeWidth);
-                    printMazeInfo(maze, baseX, baseY, baseZ);
-                    noError = false;
-                } else if (userChoice == 2) {
-                    maze.clear();
-                    Maze randomMaze;
-                    randomMaze.generateRandomMaze(maze, mazeLength, mazeWidth);
-                    printMazeInfo(maze, baseX, baseY, baseZ);
-                    noError = false;
-                } else if (userChoice == 3) {
-                    noError = false;
-                } else {
-                    std::cout << "Error. Please enter a number from 1 to 3" << std::endl;
+                // convert mazeVec to vector<string> format
+                maze.clear();
+                for (const auto& row : mazeVec) {
+                    maze.emplace_back(row.begin(), row.end());
                 }
+
+                mazeLength = mazeVec[0].size();
+                mazeWidth = mazeVec.size();
+                buildStart = base;
+                noError = false;
+            } else {
+                std::cout << "Error Reading Maze. Try again." << std::endl;
             }
+
+        } else if (userChoice == 2) {
+            Maze randomMaze;
+            mcpp::Coordinate playerPos = mc.getPlayerPosition();
+            mcpp::Coordinate front = playerPos + mcpp::Coordinate(1, 0, 0);
+            buildStart = front;
+
+            if (!readLengthWidth((unsigned&)mazeLength, (unsigned&)mazeWidth)) continue;
+
+            randomMaze.generateRandomMaze(maze, mazeLength, mazeWidth);
+            std::cout << "Maze generated successfully" << std::endl;
+                    std::vector<std::vector<char>> mazeVecForPrint;
+        for (const std::string& row : maze) {
+            mazeVecForPrint.emplace_back(row.begin(), row.end());
         }
+        printMaze(mazeVecForPrint);
+            noError = false;
+
+        } else if (userChoice == 3) {
+            noError = false;
+
+        } else {
+            std::cout << "Error. Please enter a number from 1 to 3" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(1000, '\n');
+        }
+    }
+}
+
+
 
         // === 2) Build Maze ===
         else if (userChoice == 2) {
