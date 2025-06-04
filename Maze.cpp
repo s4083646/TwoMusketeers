@@ -92,7 +92,7 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
             if (maze[row][col] == '.') {
                 if (row == 0 || row == length - 1 || col == 0 || col == width - 1) {
                     mcpp::Coordinate exitTile = buildStart + mcpp::Coordinate(row, 0, col);
-                    mcpp::Coordinate carpet = mcpp::Coordinate(exitTile.x - 1, y, exitTile.z);
+                    mcpp::Coordinate carpet = mcpp::Coordinate(exitTile.x, y, exitTile.z);
                     saveBlockChange(carpet);
                     mc.setBlock(carpet, mcpp::Blocks::BLUE_CARPET);
                     return;  // Only mark one exit
