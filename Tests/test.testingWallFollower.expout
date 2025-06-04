@@ -1,0 +1,113 @@
+Welcome to MineCraft MazeRunner!
+--------------------------------
+
+------------- MAIN MENU -------------
+1) Generate Maze
+2) Build Maze in MineCraft
+3) Solve Maze
+4) Show Team Information
+5) Exit
+
+Enter Menu item to continue: 
+
+
+------------- GENERATE MAZE -------------
+1) Read Maze from terminal
+2) Generate Random Maze
+3) Back
+
+Enter Menu item to continue: 
+Enter the basePoint of maze in the format [X Y Z]
+Enter the length and width of the maze [L W] 
+Maze read successfully
+Printing Maze
+Base Point: (0, 0, 0)
+Structure:
+xxxxxxxxx
+x.....x.x
+x.x.x.x.x
+x.x.x...x
+xxx.xxx.x
+....x...x
+x.xxx.xxx
+x...x...x
+xxxxxxxxx
+End Printing Maze
+
+
+Welcome to MineCraft MazeRunner!
+--------------------------------
+
+------------- MAIN MENU -------------
+1) Generate Maze
+2) Build Maze in MineCraft
+3) Solve Maze
+4) Show Team Information
+5) Exit
+
+Enter Menu item to continue: 
+
+
+Welcome to MineCraft MazeRunner!
+--------------------------------
+
+------------- MAIN MENU -------------
+1) Generate Maze
+2) Build Maze in MineCraft
+3) Solve Maze
+4) Show Team Information
+5) Exit
+
+Enter Menu item to continue: 
+
+------------- SOLVE MAZE -------------
+1) Solve Manually
+2) Show Escape Route
+3) Back
+
+Enter Menu item to continue: 
+
+Step[0]: (7, -60, 6)
+Step[1]: (7, -60, 5)
+Step[2]: (6, -60, 5)
+Step[3]: (5, -60, 5)
+Step[4]: (5, -60, 6)
+Step[5]: (5, -60, 7)
+Step[6]: (4, -60, 7)
+Step[7]: (3, -60, 7)
+Step[8]: (3, -60, 6)
+Step[9]: (3, -60, 5)
+Step[10]: (2, -60, 5)
+Step[11]: (1, -60, 5)
+Step[12]: (1, -60, 4)
+Step[13]: (1, -60, 3)
+Step[14]: (2, -60, 3)
+Step[15]: (3, -60, 3)
+Step[16]: (4, -60, 3)
+Step[17]: (5, -60, 3)
+Step[18]: (5, -60, 2)
+Step[19]: (5, -60, 1)
+Step[20]: (6, -60, 1)
+Step[21]: (7, -60, 1)
+Step[22]: (7, -60, 2)
+Step[23]: (7, -60, 3)
+Step[24]: (7, -60, 2)
+Step[25]: (7, -60, 1)
+Step[26]: (6, -60, 1)
+Step[27]: (5, -60, 1)
+Step[28]: (5, -60, 0)
+Step[29]: (5, -60, -1)
+
+
+Welcome to MineCraft MazeRunner!
+--------------------------------
+
+------------- MAIN MENU -------------
+1) Generate Maze
+2) Build Maze in MineCraft
+3) Solve Maze
+4) Show Team Information
+5) Exit
+
+Enter Menu item to continue: 
+
