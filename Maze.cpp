@@ -144,12 +144,20 @@ void Maze::teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp:
     int worldY = basePoint.y;
     int worldZ = basePoint.z + furthestRow;
 
+<<<<<<< HEAD
     std::string tpCommand = "tp @a " + std::to_string(worldX) + " "
                                     + std::to_string(worldY) + " "
                                     + std::to_string(worldZ);
+=======
+    // Move player exactly into walkable cell (centered on block)
+    std::string tpCommand = "tp @a " + std::to_string(worldX + 0.5) + " "
+                                    + std::to_string(worldY) + " "
+                                    + std::to_string(worldZ + 0.5);
+>>>>>>> b965838c437b29c66c17566627a584fffa6288d3
     mc.doCommand(tpCommand);
 
     std::cout << "Teleported to furthest point: (" << worldX << ", " << worldY << ", " << worldZ << ")\n";
+
 }
 
 void Maze::generateRandomMaze(std::vector<std::string>& maze, int height, int width, bool testMode) {
