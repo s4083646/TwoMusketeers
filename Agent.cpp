@@ -93,7 +93,7 @@ std::vector<mcpp::Coordinate> Agent::solveWithBFS() {
 
         for (const auto& next : neighbors) {
             if (visited.count(next)) continue;
-            if (mc.getBlock(next) != mcpp::Blocks::AIR) continue;
+            if (mc.getBlock(next) != mcpp::Blocks::AIR && mc.getBlock(next) != mcpp::Blocks::BLUE_CARPET) continue;
 
             cameFrom[next] = curr;
             visited.insert(next);
@@ -120,19 +120,8 @@ std::vector<mcpp::Coordinate> Agent::solveWithBFS() {
 }
 
 bool Agent::isExit(const mcpp::Coordinate& loc) {
-    int openSides = 0;
-    std::vector<mcpp::Coordinate> dirs = {
-        loc + MOVE_NORTH,
-        loc + MOVE_SOUTH,
-        loc + MOVE_EAST,
-        loc + MOVE_WEST
-    };
-
-    for (const auto& d : dirs) {
-        if (mc.getBlock(d) == mcpp::Blocks::AIR) openSides++;
-    }
-
-    return openSides >= 3;
+    // FIXED: detect if it's a blue carpet block
+    return mc.getBlock(loc) == mcpp::Blocks::BLUE_CARPET;
 }
 
 AgentOrientation Agent::turnLeft(AgentOrientation orientation) {
