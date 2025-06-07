@@ -40,10 +40,6 @@ int main(void) {
             continue;
         }
 
-<<<<<<< HEAD
-=======
-        // === 1) Generate Maze ===
->>>>>>> b965838c437b29c66c17566627a584fffa6288d3
         if (userChoice == 1) {
             bool noError = true;
 
@@ -72,21 +68,13 @@ int main(void) {
                     }
 
                 } else if (userChoice == 2) {
-<<<<<<< HEAD
-=======
-                    Maze randomMaze;
->>>>>>> b965838c437b29c66c17566627a584fffa6288d3
                     mcpp::Coordinate playerPos = mc.getPlayerPosition();
                     mcpp::Coordinate front = playerPos + mcpp::Coordinate(1, 0, 0);
                     buildStart = front;
 
                     if (!readLengthWidth((unsigned&)mazeLength, (unsigned&)mazeWidth)) continue;
 
-<<<<<<< HEAD
                     builtMaze.generateRandomMaze(maze, mazeWidth, mazeLength, TESTING_MODE);
-=======
-                    randomMaze.generateRandomMaze(maze, mazeLength, mazeWidth);
->>>>>>> b965838c437b29c66c17566627a584fffa6288d3
                     std::cout << "Maze generated successfully" << std::endl;
 
                     std::vector<std::vector<char>> mazeVecForPrint;
@@ -106,40 +94,22 @@ int main(void) {
             }
         }
 
-<<<<<<< HEAD
-=======
-        // === 2) Build Maze ===
->>>>>>> b965838c437b29c66c17566627a584fffa6288d3
         else if (userChoice == 2) {
             if (maze.empty()) {
                 std::cout << "Maze has not been created. Please generate a maze before attempting to build one." << std::endl;
                 continue;
             }
 
-<<<<<<< HEAD
             int mazeX = buildStart.x;
             int mazeY = buildStart.y;
             int mazeZ = buildStart.z;
-=======
-            mcpp::Coordinate playerPos = mc.getPlayerPosition();
-            mcpp::Coordinate front = playerPos + mcpp::Coordinate(1, 0, 0);
-            int mazeX = front.x;
-            int mazeY = front.y;
-            int mazeZ = front.z;
->>>>>>> b965838c437b29c66c17566627a584fffa6288d3
 
             int x1 = mazeX;
             int z1 = mazeZ;
             int x2 = mazeX + mazeLength - 1;
             int z2 = mazeZ + mazeWidth - 1;
 
-<<<<<<< HEAD
             std::string tpCommand = "tp @a " + std::to_string(mazeX) + " " + std::to_string(mazeY + 1) + " " + std::to_string(mazeZ);
-=======
-            std::string playerName = "@a";
-            std::string tpCommand = "tp " + playerName + " "
-                + std::to_string(mazeX) + " " + std::to_string(mazeY + 3) + " " + std::to_string(mazeZ);
->>>>>>> b965838c437b29c66c17566627a584fffa6288d3
             mc.doCommand(tpCommand);
 
             std::string clearMazeArea = "fill "
@@ -148,11 +118,6 @@ int main(void) {
                 + " minecraft:air";
             mc.doCommand(clearMazeArea);
 
-<<<<<<< HEAD
-=======
-            buildStart = mcpp::Coordinate(mazeX, mazeY, mazeZ);
-            builtMaze.undoChanges();
->>>>>>> b965838c437b29c66c17566627a584fffa6288d3
             builtMaze.buildMaze(maze, mazeLength, mazeWidth, buildStart);
         }
 
@@ -170,54 +135,7 @@ int main(void) {
                 if (userChoice == 1) {
                     builtMaze.teleportPlayerToRandomDot(maze, buildStart);
                 } else if (userChoice == 2) {
-                    // Find furthest walkable point
-                    int rows = maze.size();
-                    int cols = maze[0].size();
-                    int startRow = -1, startCol = -1;
-
-                    for (int r = 0; r < rows && startRow == -1; ++r) {
-                        for (int c = 0; c < cols; ++c) {
-                            if (maze[r][c] == '.') {
-                                startRow = r;
-                                startCol = c;
-                                break;
-                            }
-                        }
-                    }
-
-                    std::vector<std::vector<bool>> visited(rows, std::vector<bool>(cols, false));
-                    std::queue<std::tuple<int, int, int>> q;
-                    q.push({startRow, startCol, 0});
-                    visited[startRow][startCol] = true;
-
-                    int furthestRow = startRow;
-                    int furthestCol = startCol;
-                    int maxDist = 0;
-
-                    const int dRow[] = {-1, 1, 0, 0};
-                    const int dCol[] = {0, 0, -1, 1};
-
-                    while (!q.empty()) {
-                        auto [r, c, dist] = q.front(); q.pop();
-                        if (maze[r][c] == '.' && dist > maxDist) {
-                            maxDist = dist;
-                            furthestRow = r;
-                            furthestCol = c;
-                        }
-
-                        for (int d = 0; d < 4; ++d) {
-                            int nr = r + dRow[d];
-                            int nc = c + dCol[d];
-                            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols &&
-                                maze[nr][nc] == '.' && !visited[nr][nc]) {
-                                visited[nr][nc] = true;
-                                q.push({nr, nc, dist + 1});
-                            }
-                        }
-                    }
-
-                    mcpp::Coordinate furthest = buildStart + mcpp::Coordinate(furthestCol, 0, furthestRow);
-                    Agent solveMaze(furthest);
+                    Agent solveMaze(buildStart);
                     solveMaze.initializePlayerBlock();
                     solveMaze.guideToExit();
                 } else if (userChoice == 3) {
@@ -233,13 +151,8 @@ int main(void) {
         }
 
         else if (userChoice == 5) {
-<<<<<<< HEAD
             printExitMessage();  // fixed name
             builtMaze.undoChanges();  // properly tracked undo
-=======
-            printExitMessage();
-            builtMaze.undoChanges();
->>>>>>> b965838c437b29c66c17566627a584fffa6288d3
             curState = ST_Exit;
         }
 
