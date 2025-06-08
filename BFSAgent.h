@@ -1,12 +1,12 @@
-#ifndef ASSIGN3_AGENT_H
-#define ASSIGN3_AGENT_H
+#ifndef ASSIGN3_BFSAGENT_H
+#define ASSIGN3_BFSAGENT_H
 
 #include <iostream>
 #include <mcpp/mcpp.h>
 #include <vector>
 #include <unordered_map>
 
-// --- Movement Macros ---
+// === Directional Moves ===
 #define MOVE_XPLUS mcpp::Coordinate(1, 0, 0)
 #define MOVE_XMINUS mcpp::Coordinate(-1, 0, 0)
 #define MOVE_ZPLUS mcpp::Coordinate(0, 0, 1)
@@ -24,25 +24,25 @@ enum AgentOrientation {
     Z_MINUS
 };
 
-class Agent {
+class Pathfinder {
 public:
-    Agent(mcpp::Coordinate startLoc);
-    ~Agent();
+    Pathfinder(mcpp::Coordinate spawnPoint);
+    ~Pathfinder();
 
-    void guideToExit();
-    void initializePlayerBlock();
+    void navigateToExit();
+    void setStartToPlayer();
 
-    std::vector<mcpp::Coordinate> solveWithBFS();
-    bool isExit(const mcpp::Coordinate& loc);
+    std::vector<mcpp::Coordinate> searchWithBFS();
+    bool checkExitTile(const mcpp::Coordinate& tile);
 
-    AgentOrientation turnLeft(AgentOrientation orientation);
-    AgentOrientation turnRight(AgentOrientation orientation);
-    AgentOrientation turnBack(AgentOrientation orientation);
+    AgentOrientation turnLeft(AgentOrientation dir);
+    AgentOrientation turnRight(AgentOrientation dir);
+    AgentOrientation turnAround(AgentOrientation dir);
 
-    mcpp::Coordinate getNextLocation(const mcpp::Coordinate& currentLocation, AgentOrientation orientation);
-    AgentOrientation getNewOrientation(const mcpp::Coordinate& currentLocation, const mcpp::Coordinate& nextLocation);
+    mcpp::Coordinate computeNextMove(const mcpp::Coordinate& origin, AgentOrientation dir);
+    AgentOrientation inferDirection(const mcpp::Coordinate& from, const mcpp::Coordinate& to);
 
-    bool CheckIfExit(mcpp::MinecraftConnection& mc, mcpp::Coordinate currentLocation, AgentOrientation currentOrientation);
+    bool isOnAirBlock(mcpp::MinecraftConnection& mc, mcpp::Coordinate pos, AgentOrientation dir);
 
 private:
     mcpp::MinecraftConnection mc;
@@ -50,4 +50,4 @@ private:
     AgentOrientation currentOrientation;
 };
 
-#endif // ASSIGN3_AGENT_H
+#endif // ASSIGN3_BFSAGENT_H

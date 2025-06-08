@@ -2,7 +2,7 @@
 #include <mcpp/mcpp.h>
 #include "menuUtils.h"
 #include "Maze.h"
-#include "Agent.h"
+#include "BFSAgent.h" 
 #include "MazeReadWriteUtils.h"
 
 #define NORMAL_MODE 0
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     int mazeLength, mazeWidth;
     std::vector<std::string> maze;
     mcpp::Coordinate buildStart;
-    Maze builtMaze;
+    MazeHandler mazeHandler;
 
     while (curState != ST_Exit) {
         printStartText();
@@ -74,12 +74,11 @@ int main(int argc, char* argv[]) {
 
                 } else if (userChoice == 2) {
                     mcpp::Coordinate playerPos = mc.getPlayerPosition();
-                    mcpp::Coordinate front = playerPos + mcpp::Coordinate(1, 0, 0);
-                    buildStart = front;
+                    buildStart = playerPos + mcpp::Coordinate(1, 0, 0);
 
                     if (!readLengthWidth((unsigned&)mazeLength, (unsigned&)mazeWidth)) continue;
 
-                    builtMaze.generateRandomMaze(maze, mazeWidth, mazeLength, mode == TESTING_MODE);
+                    mazeHandler.createRandomLayout(maze, mazeWidth, mazeLength, mode == TESTING_MODE);
                     std::cout << "Maze generated successfully" << std::endl;
 
                     std::vector<std::vector<char>> mazeVecForPrint;
@@ -123,7 +122,7 @@ int main(int argc, char* argv[]) {
                 + " minecraft:air";
             mc.doCommand(clearMazeArea);
 
-            builtMaze.buildMaze(maze, mazeLength, mazeWidth, buildStart);
+            mazeHandler.renderMazeInWorld(maze, mazeLength, mazeWidth, buildStart);
         }
 
         else if (userChoice == 3) {
@@ -139,14 +138,14 @@ int main(int argc, char* argv[]) {
 
                 if (userChoice == 1) {
                     if (mode == TESTING_MODE) {
-                        builtMaze.teleportPlayerToFurthestDot(maze, buildStart);
+                        mazeHandler.moveToDeepestPoint(maze, buildStart);
                     } else {
-                        builtMaze.teleportPlayerToRandomDot(maze, buildStart);
+                        mazeHandler.moveToRandomStart(maze, buildStart);
                     }
                 } else if (userChoice == 2) {
-                    Agent solveMaze(buildStart);
-                    solveMaze.initializePlayerBlock();
-                    solveMaze.guideToExit();
+                    Pathfinder solver(buildStart);
+                    solver.setStartToPlayer();
+                    solver.navigateToExit();
                 } else if (userChoice == 3) {
                     backCheck = false;
                 } else {
@@ -161,7 +160,7 @@ int main(int argc, char* argv[]) {
 
         else if (userChoice == 5) {
             printExitMessage();
-            builtMaze.undoChanges();
+            mazeHandler.revertChanges();
             curState = ST_Exit;
         }
 

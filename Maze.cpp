@@ -7,185 +7,175 @@
 #include <thread>
 #include <chrono>
 
-Maze::Maze() : changeCount(0), exitRow(-1) {}
+MazeHandler::MazeHandler() : changeIndex(0), goalRow(-1) {}
+MazeHandler::~MazeHandler() {}
 
-Maze::~Maze() {}
-
-void Maze::saveBlockChange(const mcpp::Coordinate& coord) {
-    if (changeCount >= 10000) return;
-    changes[changeCount].coord = coord;
-    changes[changeCount].original = mc.getBlock(coord);
-    ++changeCount;
+void MazeHandler::captureChange(const mcpp::Coordinate& location) {
+    if (changeIndex >= MAX_LOG) return;
+    history[changeIndex].location = location;
+    history[changeIndex].originalType = mc.getBlock(location);
+    ++changeIndex;
 }
 
-void Maze::undoChanges() {
-    for (int i = changeCount - 1; i >= 0; --i) {
-        mc.setBlock(changes[i].coord, changes[i].original);
+void MazeHandler::revertChanges() {
+    for (int i = changeIndex - 1; i >= 0; --i) {
+        mc.setBlock(history[i].location, history[i].originalType);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    changeCount = 0;
+    changeIndex = 0;
 }
 
-void Maze::generateRandomMaze(std::vector<std::string>& maze, int rows, int cols, bool testMode) {
-    maze.assign(rows, std::string(cols, 'x'));
+void MazeHandler::createRandomLayout(std::vector<std::string>& layout, int height, int width, bool isTest) {
+    layout.assign(height, std::string(width, 'x'));
 
-    std::mt19937 rng(testMode ? 0 : std::random_device{}());
+    std::mt19937 engine(isTest ? 0 : std::random_device{}());
     auto shuffle = [&](auto& vec) {
-        std::shuffle(vec.begin(), vec.end(), rng);
+        std::shuffle(vec.begin(), vec.end(), engine);
     };
 
-    auto carve = [&](int r, int c, auto&& carve_ref) -> void {
+    auto dig = [&](int r, int c, auto&& digSelf) -> void {
         static const int dr[] = { -2, 2, 0, 0 };
         static const int dc[] = { 0, 0, -2, 2 };
-        maze[r][c] = '.';
+        layout[r][c] = '.';
         std::vector<int> dirs = { 0, 1, 2, 3 };
         shuffle(dirs);
 
         for (int d : dirs) {
             int nr = r + dr[d], nc = c + dc[d];
-            if (nr > 0 && nr < rows - 1 && nc > 0 && nc < cols - 1 && maze[nr][nc] == 'x') {
-                maze[r + dr[d] / 2][c + dc[d] / 2] = '.';
-                carve_ref(nr, nc, carve_ref);
+            if (nr > 0 && nr < height - 1 && nc > 0 && nc < width - 1 && layout[nr][nc] == 'x') {
+                layout[r + dr[d] / 2][c + dc[d] / 2] = '.';
+                digSelf(nr, nc, digSelf);
             }
         }
     };
 
-    carve(1, 1, carve);
+    dig(1, 1, dig);
 
-    for (int r = 0; r < rows; ++r) {
-        maze[r][0] = 'x';
-        maze[r][cols - 1] = 'x';
+    for (int r = 0; r < height; ++r) {
+        layout[r][0] = 'x';
+        layout[r][width - 1] = 'x';
     }
-    for (int c = 0; c < cols; ++c) {
-        maze[0][c] = 'x';
-        maze[rows - 1][c] = 'x';
+    for (int c = 0; c < width; ++c) {
+        layout[0][c] = 'x';
+        layout[height - 1][c] = 'x';
     }
 
-    std::vector<int> candidates;
-    for (int r = 1; r < rows - 1; ++r) {
-        if (maze[r][cols - 2] == '.') {
-            candidates.push_back(r);
+    std::vector<int> options;
+    for (int r = 1; r < height - 1; ++r) {
+        if (layout[r][width - 2] == '.') {
+            options.push_back(r);
         }
     }
 
-    if (!candidates.empty()) {
-        exitRow = candidates[rng() % candidates.size()];
-        maze[exitRow][cols - 1] = '.';
+    if (!options.empty()) {
+        goalRow = options[engine() % options.size()];
+        layout[goalRow][width - 1] = '.';
     }
 }
 
-void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width, mcpp::Coordinate buildStart) {
+void MazeHandler::renderMazeInWorld(const std::vector<std::string>& layout, int len, int wid, mcpp::Coordinate origin) {
     int mazeHeight = 3;
-    int y = buildStart.y - 1;
+    int y = origin.y - 1;
 
-    // Clear any previous maze first
-    undoChanges();
+    revertChanges();
 
-    int border = 1;
-    for (int row = -border; row < width + border; ++row) {
-        for (int col = -border; col < length + border; ++col) {
-            int x = buildStart.x + col;
-            int z = buildStart.z + row;
+    int margin = 1;
+    for (int zOff = -margin; zOff < wid + margin; ++zOff) {
+        for (int xOff = -margin; xOff < len + margin; ++xOff) {
+            int x = origin.x + xOff;
+            int z = origin.z + zOff;
 
-            // 🟫 Floor block at y - 1
-            mcpp::Coordinate floor(x, y - 2, z);
-            saveBlockChange(floor);
-            mc.setBlock(floor, mcpp::Blocks::AIR);
+            mcpp::Coordinate below(x, y - 2, z);
+            captureChange(below);
+            mc.setBlock(below, mcpp::Blocks::AIR);
 
-            // 🧹 Clear 3 blocks above (y to y+2)
             for (int h = 0; h < 4; ++h) {
-                mcpp::Coordinate air(x, y + h, z);
-                saveBlockChange(air);
-                mc.setBlock(air, mcpp::Blocks::AIR);
+                mcpp::Coordinate above(x, y + h, z);
+                captureChange(above);
+                mc.setBlock(above, mcpp::Blocks::AIR);
             }
         }
     }
 
-    // Build maze structure
-    for (int row = 0; row < width; ++row) {
-        for (int col = 0; col < length; ++col) {
-            char cell = maze[row][col];
-            int x = buildStart.x + col;
-            int z = buildStart.z + row;
+    for (int row = 0; row < wid; ++row) {
+        for (int col = 0; col < len; ++col) {
+            char type = layout[row][col];
+            int x = origin.x + col;
+            int z = origin.z + row;
 
-            mcpp::Coordinate floor(x, y - 1, z);
-            saveBlockChange(floor);
+            mcpp::Coordinate ground(x, y - 1, z);
+            captureChange(ground);
 
-            if (cell == 'x') {
-                mc.setBlock(floor, mcpp::Blocks::ACACIA_WOOD_PLANK);
+            if (type == 'x') {
+                mc.setBlock(ground, mcpp::Blocks::ACACIA_WOOD_PLANK);
             } else {
-                mc.setBlock(floor, mcpp::Blocks::GRASS);
+                mc.setBlock(ground, mcpp::Blocks::GRASS);
             }
 
             for (int h = 0; h < mazeHeight; ++h) {
                 mcpp::Coordinate pos(x, y + h, z);
-                saveBlockChange(pos);
+                captureChange(pos);
 
-                if (cell == 'x') {
+                if (type == 'x') {
                     mc.setBlock(pos, mcpp::Blocks::ACACIA_WOOD_PLANK);
                 } else {
                     mc.setBlock(pos, mcpp::Blocks::AIR);
                 }
 
-                // 🎯 Blue carpet at exit
-                if (cell == '.' && col == length - 1 && row == exitRow && h == 0) {
-                    mcpp::Coordinate carpet(x + 1, y, z);
-                    saveBlockChange(carpet);
-                    mc.setBlock(carpet, mcpp::Blocks::BLUE_CARPET);
+                if (type == '.' && col == len - 1 && row == goalRow && h == 0) {
+                    mcpp::Coordinate exitCarpet(x + 1, y, z);
+                    captureChange(exitCarpet);
+                    mc.setBlock(exitCarpet, mcpp::Blocks::BLUE_CARPET);
                 }
             }
         }
     }
 }
 
-void Maze::teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart) {
-    std::vector<mcpp::Coordinate> walkableTiles;
-    int width = maze.size();
-    int length = maze[0].length();
+void MazeHandler::moveToRandomStart(const std::vector<std::string>& layout, mcpp::Coordinate origin) {
+    std::vector<mcpp::Coordinate> candidates;
+    int h = layout.size();
+    int w = layout[0].length();
 
-    for (int z = 0; z < width; ++z) {
-        for (int x = 0; x < length; ++x) {
-            if (maze[z][x] == '.') {
-                walkableTiles.emplace_back(buildStart.x + x, buildStart.y + 1, buildStart.z + z);
+    for (int z = 0; z < h; ++z) {
+        for (int x = 0; x < w; ++x) {
+            if (layout[z][x] == '.') {
+                candidates.emplace_back(origin.x + x, origin.y + 1, origin.z + z);
             }
         }
     }
 
-    if (walkableTiles.empty()) {
-        std::cout << "No walkable tiles found to teleport to." << std::endl;
+    if (candidates.empty()) {
+        std::cout << "No valid tiles to teleport." << std::endl;
         return;
     }
 
-    std::mt19937 rng(std::random_device{}());
-    mcpp::Coordinate chosen = walkableTiles[rng() % walkableTiles.size()];
+    std::mt19937 engine(std::random_device{}());
+    mcpp::Coordinate pick = candidates[engine() % candidates.size()];
 
-    mc.doCommand("tp @a " + std::to_string(chosen.x) + " " +
-                             std::to_string(chosen.y) + " " +
-                             std::to_string(chosen.z));
+    mc.doCommand("tp @a " + std::to_string(pick.x) + " " + std::to_string(pick.y) + " " + std::to_string(pick.z));
 }
 
-void Maze::teleportPlayerToFurthestDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart) {
-    int width = maze.size();
-    int length = maze[0].size();
+void MazeHandler::moveToDeepestPoint(const std::vector<std::string>& layout, mcpp::Coordinate origin) {
+    int h = layout.size();
+    int w = layout[0].size();
 
-    // Find the exit cell (should be last column at row = exitRow)
-    int startZ = exitRow;
-    int startX = length - 1;
+    int startZ = goalRow;
+    int startX = w - 1;
 
-    std::queue<std::pair<int, int>> q;
-    std::vector<std::vector<bool>> visited(width, std::vector<bool>(length, false));
-    q.push({startZ, startX});
-    visited[startZ][startX] = true;
+    std::queue<std::pair<int, int>> bfs;
+    std::vector<std::vector<bool>> marked(h, std::vector<bool>(w, false));
+    bfs.push({startZ, startX});
+    marked[startZ][startX] = true;
 
-    int furthestX = startX;
-    int furthestZ = startZ;
+    int farX = startX, farZ = startZ;
 
-    while (!q.empty()) {
-        auto [z, x] = q.front();
-        q.pop();
+    while (!bfs.empty()) {
+        auto [z, x] = bfs.front();
+        bfs.pop();
 
-        furthestX = x;
-        furthestZ = z;
+        farX = x;
+        farZ = z;
 
         static const int dz[4] = {0, 0, 1, -1};
         static const int dx[4] = {1, -1, 0, 0};
@@ -193,22 +183,13 @@ void Maze::teleportPlayerToFurthestDot(const std::vector<std::string>& maze, mcp
         for (int d = 0; d < 4; ++d) {
             int nz = z + dz[d];
             int nx = x + dx[d];
-            if (nz >= 0 && nz < width && nx >= 0 && nx < length &&
-                !visited[nz][nx] && maze[nz][nx] == '.') {
-                visited[nz][nx] = true;
-                q.push({nz, nx});
+            if (nz >= 0 && nz < h && nx >= 0 && nx < w && !marked[nz][nx] && layout[nz][nx] == '.') {
+                marked[nz][nx] = true;
+                bfs.push({nz, nx});
             }
         }
     }
 
-    mcpp::Coordinate furthestCoord = mcpp::Coordinate(
-        buildStart.x + furthestX,
-        buildStart.y + 1,
-        buildStart.z + furthestZ
-    );
-
-    std::string tpCmd = "tp @a " + std::to_string(furthestCoord.x) + " " +
-                        std::to_string(furthestCoord.y) + " " +
-                        std::to_string(furthestCoord.z);
-    mc.doCommand(tpCmd);
+    mcpp::Coordinate dest = mcpp::Coordinate(origin.x + farX, origin.y + 1, origin.z + farZ);
+    mc.doCommand("tp @a " + std::to_string(dest.x) + " " + std::to_string(dest.y) + " " + std::to_string(dest.z));
 }

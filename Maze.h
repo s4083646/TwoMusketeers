@@ -1,35 +1,35 @@
-#ifndef MAZE_H
-#define MAZE_H
+#ifndef MAZE_HANDLER_H
+#define MAZE_HANDLER_H
 
 #include <vector>
 #include <string>
 #include <mcpp/mcpp.h>
 
-class Maze {
+class MazeHandler {
 public:
-    Maze();
-    ~Maze();
+    MazeHandler();
+    ~MazeHandler();
 
-    void generateRandomMaze(std::vector<std::string>& maze, int rows, int cols, bool testMode);
-    void buildMaze(const std::vector<std::string>& maze, int length, int width, mcpp::Coordinate buildStart);
-    void teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart);
-    void teleportPlayerToFurthestDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart);  // <-- NEW
-    void undoChanges();
+    void createRandomLayout(std::vector<std::string>& layout, int height, int width, bool isTest);
+    void renderMazeInWorld(const std::vector<std::string>& layout, int len, int wid, mcpp::Coordinate origin);
+    void moveToRandomStart(const std::vector<std::string>& layout, mcpp::Coordinate origin);
+    void moveToDeepestPoint(const std::vector<std::string>& layout, mcpp::Coordinate origin);
+    void revertChanges();
 
 private:
-    struct BlockChange {
-        mcpp::Coordinate coord;
-        mcpp::BlockType original;
+    struct ChangeRecord {
+        mcpp::Coordinate location;
+        mcpp::BlockType originalType;
     };
 
-    void saveBlockChange(const mcpp::Coordinate& coord);
+    void captureChange(const mcpp::Coordinate& location);
 
-    static constexpr int MAX_CHANGES = 10000;
-    BlockChange changes[MAX_CHANGES];
-    int changeCount;
+    static constexpr int MAX_LOG = 10000;
+    ChangeRecord history[MAX_LOG];
+    int changeIndex;
 
-    int exitRow;
+    int goalRow;
     mcpp::MinecraftConnection mc;
 };
 
-#endif // MAZE_H
+#endif // MAZE_HANDLER_H
