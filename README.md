@@ -2,14 +2,14 @@
 COSC2804 - C++ Programming Studio - RMIT university
 
 ## Task Allocation
-- Team member 1: <John Doe, s123456>
-- Team member 2: <Jane Doe, s123456>
-- Team member 3: <Alex Kim, s123456>
+- Team member 1: <Dhiya Batrisya Binti Norfaiz, s4083646>
+- Team member 2: <Sahar Zainullah, s3903957>
+- Team member 3: <Shahira Jasmine Binti Yahaya, s4111555>
 
 ## Branchers
-- John Doe, latest individual code in branch `acc123`
-- Jane Doe, latest individual code in branch `abc123`
-- Alex Kim, latest individual code in branch `abb123`
+- Dhiya Batrisya Binti Norfaiz, latest individual code in branch `s4083646`
+- Sahar Zainullah, latest individual code in branch `s3903957`
+- Shahira Jasmine Binti Yahaya, latest individual code in branch `s4111555`
 - Intergrated code in branch `main`
 
 ## Video recording

@@ -140,11 +140,9 @@ bool validateMaze(std::vector<std::vector<char>>& maze) {
     int height = maze.size(), width = maze[0].size();
     std::vector<std::vector<char>> temp = maze;
 
-    // Find entrance
     int entranceCount = countEntrances(maze);
     if (entranceCount != 1) return false;
 
-    // Flood fill for isolation
     bool found = false;
     for (int z = 0; z < height && !found; ++z)
         for (int x = 0; x < width && !found; ++x)
@@ -155,9 +153,8 @@ bool validateMaze(std::vector<std::vector<char>>& maze) {
 
     for (int z = 0; z < height; ++z)
         for (int x = 0; x < width; ++x)
-            if (temp[z][x] == '.') return false; // isolated area
+            if (temp[z][x] == '.') return false;
 
-    // Loop check by flood-filling walls
     temp = maze;
     found = false;
     for (int z = 0; z < height && !found; ++z)
@@ -169,7 +166,7 @@ bool validateMaze(std::vector<std::vector<char>>& maze) {
 
     for (int z = 0; z < height; ++z)
         for (int x = 0; x < width; ++x)
-            if (temp[z][x] == 'x') return false; // disjoint wall structure
+            if (temp[z][x] == 'x') return false;
 
     return true;
 }
