@@ -93,7 +93,7 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
             mc.setBlock(floor, mcpp::Blocks::AIR);
 
             // 🧹 Clear 3 blocks above (y to y+2)
-            for (int h = 0; h < 5; ++h) {
+            for (int h = 0; h < 4; ++h) {
                 mcpp::Coordinate air(x, y + h, z);
                 saveBlockChange(air);
                 mc.setBlock(air, mcpp::Blocks::AIR);
