@@ -1,4 +1,17 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-718a45dd9cf7e7f842a935f5ebbe5719a5e09af4491e668f4dbf3b35d5cca122.svg)](https://classroom.github.com/online_ide?assignment_repo_id=12242196&assignment_repo_type=AssignmentRepo)
-# cosc2804-assignment3-template
-This is the link to the video
-https://drive.google.com/file/d/1MsDnnoYnrz1RdGqm1CLFn2INPuhhL4CE/view?usp=drive_link
+# COSC_Assignment3
+COSC2804 - C++ Programming Studio - RMIT university
+
+## Task Allocation
+- Team member 1: <John Doe, s123456>
+- Team member 2: <Jane Doe, s123456>
+- Team member 3: <Alex Kim, s123456>
+
+## Branchers
+- John Doe, latest individual code in branch `acc123`
+- Jane Doe, latest individual code in branch `abc123`
+- Alex Kim, latest individual code in branch `abb123`
+- Intergrated code in branch `main`
+
+## Video recording
+Link: https://unknown.com
+Declaration: I have setup the links such that anyone at RMIT can acess the video.   
