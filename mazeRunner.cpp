@@ -16,7 +16,12 @@ enum States {
     ST_Exit
 };
 
-int main(void) {
+int main(int argc, char* argv[]) {
+    int mode = NORMAL_MODE;
+    if (argc > 1 && std::string(argv[1]) == "-testmode") {
+        mode = TESTING_MODE;
+    }
+
     mcpp::MinecraftConnection mc;
     mc.doCommand("time set day");
 
@@ -26,7 +31,7 @@ int main(void) {
     int mazeLength, mazeWidth;
     std::vector<std::string> maze;
     mcpp::Coordinate buildStart;
-    Maze builtMaze;  // ← Needed to track changes for undo()
+    Maze builtMaze;
 
     while (curState != ST_Exit) {
         printStartText();
@@ -74,7 +79,7 @@ int main(void) {
 
                     if (!readLengthWidth((unsigned&)mazeLength, (unsigned&)mazeWidth)) continue;
 
-                    builtMaze.generateRandomMaze(maze, mazeWidth, mazeLength, TESTING_MODE);
+                    builtMaze.generateRandomMaze(maze, mazeWidth, mazeLength, mode == TESTING_MODE);
                     std::cout << "Maze generated successfully" << std::endl;
 
                     std::vector<std::vector<char>> mazeVecForPrint;
@@ -133,7 +138,11 @@ int main(void) {
                 std::cin >> userChoice;
 
                 if (userChoice == 1) {
-                    builtMaze.teleportPlayerToRandomDot(maze, buildStart);
+                    if (mode == TESTING_MODE) {
+                        builtMaze.teleportPlayerToFurthestDot(maze, buildStart);
+                    } else {
+                        builtMaze.teleportPlayerToRandomDot(maze, buildStart);
+                    }
                 } else if (userChoice == 2) {
                     Agent solveMaze(buildStart);
                     solveMaze.initializePlayerBlock();
@@ -151,8 +160,8 @@ int main(void) {
         }
 
         else if (userChoice == 5) {
-            printExitMessage();  // fixed name
-            builtMaze.undoChanges();  // properly tracked undo
+            printExitMessage();
+            builtMaze.undoChanges();
             curState = ST_Exit;
         }
 

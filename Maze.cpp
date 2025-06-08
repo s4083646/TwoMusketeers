@@ -52,7 +52,6 @@ void Maze::generateRandomMaze(std::vector<std::string>& maze, int rows, int cols
 
     carve(1, 1, carve);
 
-    // Ensure outer border is closed
     for (int r = 0; r < rows; ++r) {
         maze[r][0] = 'x';
         maze[r][cols - 1] = 'x';
@@ -62,7 +61,6 @@ void Maze::generateRandomMaze(std::vector<std::string>& maze, int rows, int cols
         maze[rows - 1][c] = 'x';
     }
 
-    // Add one walkable exit (no 'e', just a . with carpet)
     std::vector<int> candidates;
     for (int r = 1; r < rows - 1; ++r) {
         if (maze[r][cols - 2] == '.') {
@@ -72,7 +70,7 @@ void Maze::generateRandomMaze(std::vector<std::string>& maze, int rows, int cols
 
     if (!candidates.empty()) {
         exitRow = candidates[rng() % candidates.size()];
-        maze[exitRow][cols - 1] = '.'; // Normal dot, will add blue carpet later
+        maze[exitRow][cols - 1] = '.';
     }
 }
 
@@ -89,9 +87,9 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
             char cell = maze[row][col];
 
             if (cell == 'x') {
-                mc.setBlock(floor, mcpp::Blocks::ACACIA_WOOD_PLANK);  // Wall floor
+                mc.setBlock(floor, mcpp::Blocks::ACACIA_WOOD_PLANK);
             } else {
-                mc.setBlock(floor, mcpp::Blocks::GRASS);        // Path floor
+                mc.setBlock(floor, mcpp::Blocks::GRASS);
             }
 
             for (int h = 0; h < mazeHeight; ++h) {
@@ -104,7 +102,6 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
                     mc.setBlock(pos, mcpp::Blocks::AIR);
                 }
 
-                // Place blue carpet at the exit tile (only once, base level)
                 if (cell == '.' && col == length - 1 && row == exitRow && h == 0) {
                     mc.setBlock(ground, mcpp::Blocks::BLUE_CARPET);
                 }
@@ -137,4 +134,53 @@ void Maze::teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp:
     mc.doCommand("tp @a " + std::to_string(chosen.x) + " " +
                              std::to_string(chosen.y) + " " +
                              std::to_string(chosen.z));
+}
+
+void Maze::teleportPlayerToFurthestDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart) {
+    int width = maze.size();
+    int length = maze[0].size();
+
+    // Find the exit cell (should be last column at row = exitRow)
+    int startZ = exitRow;
+    int startX = length - 1;
+
+    std::queue<std::pair<int, int>> q;
+    std::vector<std::vector<bool>> visited(width, std::vector<bool>(length, false));
+    q.push({startZ, startX});
+    visited[startZ][startX] = true;
+
+    int furthestX = startX;
+    int furthestZ = startZ;
+
+    while (!q.empty()) {
+        auto [z, x] = q.front();
+        q.pop();
+
+        furthestX = x;
+        furthestZ = z;
+
+        static const int dz[4] = {0, 0, 1, -1};
+        static const int dx[4] = {1, -1, 0, 0};
+
+        for (int d = 0; d < 4; ++d) {
+            int nz = z + dz[d];
+            int nx = x + dx[d];
+            if (nz >= 0 && nz < width && nx >= 0 && nx < length &&
+                !visited[nz][nx] && maze[nz][nx] == '.') {
+                visited[nz][nx] = true;
+                q.push({nz, nx});
+            }
+        }
+    }
+
+    mcpp::Coordinate furthestCoord = mcpp::Coordinate(
+        buildStart.x + furthestX,
+        buildStart.y + 1,
+        buildStart.z + furthestZ
+    );
+
+    std::string tpCmd = "tp @a " + std::to_string(furthestCoord.x) + " " +
+                        std::to_string(furthestCoord.y) + " " +
+                        std::to_string(furthestCoord.z);
+    mc.doCommand(tpCmd);
 }

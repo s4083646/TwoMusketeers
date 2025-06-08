@@ -13,6 +13,7 @@ public:
     void generateRandomMaze(std::vector<std::string>& maze, int rows, int cols, bool testMode);
     void buildMaze(const std::vector<std::string>& maze, int length, int width, mcpp::Coordinate buildStart);
     void teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart);
+    void teleportPlayerToFurthestDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart);  // <-- NEW
     void undoChanges();
 
 private:
@@ -27,7 +28,7 @@ private:
     BlockChange changes[MAX_CHANGES];
     int changeCount;
 
-    int exitRow;  // For marking the rightmost path cell with blue carpet
+    int exitRow;
     mcpp::MinecraftConnection mc;
 };
 
