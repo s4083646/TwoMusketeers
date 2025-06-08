@@ -102,12 +102,16 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
                     mc.setBlock(pos, mcpp::Blocks::AIR);
                 }
 
+                // ✅ Insert this right here:
                 if (cell == '.' && col == length - 1 && row == exitRow && h == 0) {
-                    mc.setBlock(ground, mcpp::Blocks::BLUE_CARPET);
+                    mcpp::Coordinate carpetCoord = buildStart + mcpp::Coordinate(col + 1, 0, row);
+                    saveBlockChange(carpetCoord);
+                    mc.setBlock(carpetCoord, mcpp::Blocks::BLUE_CARPET);
                 }
             }
         }
     }
+
 }
 
 void Maze::teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart) {
