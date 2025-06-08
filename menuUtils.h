@@ -52,7 +52,7 @@ void printTeamInfo(void){
     std::cout << std::endl;
 }
 
-void printExitMassage(void){
+void printExitMessage(void){
     std::cout << std::endl;
     std::cout << "The End!" << std::endl;
     std::cout << std::endl;
