@@ -76,15 +76,40 @@ void Maze::generateRandomMaze(std::vector<std::string>& maze, int rows, int cols
 
 void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width, mcpp::Coordinate buildStart) {
     int mazeHeight = 3;
-    int y = buildStart.y;
+    int y = buildStart.y - 1;
 
+    // Clear any previous maze first
+    undoChanges();
+
+    int border = 1;
+    for (int row = -border; row < width + border; ++row) {
+        for (int col = -border; col < length + border; ++col) {
+            int x = buildStart.x + col;
+            int z = buildStart.z + row;
+
+            // 🟫 Floor block at y - 1
+            mcpp::Coordinate floor(x, y - 2, z);
+            saveBlockChange(floor);
+            mc.setBlock(floor, mcpp::Blocks::AIR);
+
+            // 🧹 Clear 3 blocks above (y to y+2)
+            for (int h = 0; h < 64; ++h) {
+                mcpp::Coordinate air(x, y + h, z);
+                saveBlockChange(air);
+                mc.setBlock(air, mcpp::Blocks::AIR);
+            }
+        }
+    }
+
+    // Build maze structure
     for (int row = 0; row < width; ++row) {
         for (int col = 0; col < length; ++col) {
-            mcpp::Coordinate ground = buildStart + mcpp::Coordinate(col, 0, row);
-            mcpp::Coordinate floor = mcpp::Coordinate(ground.x, y - 1, ground.z);
-
-            saveBlockChange(floor);
             char cell = maze[row][col];
+            int x = buildStart.x + col;
+            int z = buildStart.z + row;
+
+            mcpp::Coordinate floor(x, y - 1, z);
+            saveBlockChange(floor);
 
             if (cell == 'x') {
                 mc.setBlock(floor, mcpp::Blocks::ACACIA_WOOD_PLANK);
@@ -93,7 +118,7 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
             }
 
             for (int h = 0; h < mazeHeight; ++h) {
-                mcpp::Coordinate pos = mcpp::Coordinate(ground.x, y + h, ground.z);
+                mcpp::Coordinate pos(x, y + h, z);
                 saveBlockChange(pos);
 
                 if (cell == 'x') {
@@ -102,16 +127,15 @@ void Maze::buildMaze(const std::vector<std::string>& maze, int length, int width
                     mc.setBlock(pos, mcpp::Blocks::AIR);
                 }
 
-                // ✅ Insert this right here:
+                // 🎯 Blue carpet at exit
                 if (cell == '.' && col == length - 1 && row == exitRow && h == 0) {
-                    mcpp::Coordinate carpetCoord = buildStart + mcpp::Coordinate(col + 1, 0, row);
-                    saveBlockChange(carpetCoord);
-                    mc.setBlock(carpetCoord, mcpp::Blocks::BLUE_CARPET);
+                    mcpp::Coordinate carpet(x + 1, y, z);
+                    saveBlockChange(carpet);
+                    mc.setBlock(carpet, mcpp::Blocks::BLUE_CARPET);
                 }
             }
         }
     }
-
 }
 
 void Maze::teleportPlayerToRandomDot(const std::vector<std::string>& maze, mcpp::Coordinate buildStart) {
