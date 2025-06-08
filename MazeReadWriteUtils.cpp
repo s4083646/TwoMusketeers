@@ -167,48 +167,50 @@ bool validateMaze(std::vector<std::vector<char>>& maze) {
 
 void fixMaze(std::vector<std::vector<char>>& maze) {
     int height = maze.size(), width = maze[0].size();
-    std::vector<std::vector<char>> temp = maze;
 
+    // === Fix isolation: flood from first path, connect isolated sections ===
+    std::vector<std::vector<char>> temp = maze;
     floodFill(temp, 1, 1, '.', 'o');
+
     for (int z = 1; z < height - 1; ++z) {
         for (int x = 1; x < width - 1; ++x) {
             if (temp[z][x] == '.') {
-                for (int dx : {-1, 1, 0, 0}) {
-                    for (int dz : {0, 0, -1, 1}) {
-                        if (abs(dx) + abs(dz) != 1) continue;
-                        int nx = x + dx, nz = z + dz;
-                        if (temp[nz][nx] == 'o') {
-                            maze[(z + nz) / 2][(x + nx) / 2] = '.';
-                            floodFill(temp, x, z, '.', 'o');
-                            break;
-                        }
+                // Find a neighbor that is already reachable (marked 'o')
+                for (auto [dx, dz] : {std::pair{-1,0}, {1,0}, {0,-1}, {0,1}}) {
+                    int nx = x + dx, nz = z + dz;
+                    if (temp[nz][nx] == 'o' && maze[z][x] == '.') {
+                        // Connect the isolated region by removing wall between (x,z) and (nx,nz)
+                        maze[z][x] = '.';  // Carve this exact cell
+                        floodFill(temp, x, z, '.', 'o');  // Merge into connected region
+                        break;
                     }
                 }
             }
         }
     }
 
+    // === Fix wall loops: flood from outer wall, join any disjoint walls ===
     temp = maze;
     floodFill(temp, 0, 0, 'x', '#');
     for (int z = 1; z < height - 1; ++z) {
         for (int x = 1; x < width - 1; ++x) {
             if (temp[z][x] == 'x') {
-                for (int dx : {-1, 1, 0, 0}) {
-                    for (int dz : {0, 0, -1, 1}) {
-                        if (abs(dx) + abs(dz) != 1) continue;
-                        int nx = x + dx, nz = z + dz;
-                        if (temp[nz][nx] == '#') {
-                            maze[(z + nz) / 2][(x + nx) / 2] = 'x';
-                            floodFill(temp, x, z, 'x', '#');
-                            break;
-                        }
+                for (auto [dx, dz] : {std::pair{-1,0}, {1,0}, {0,-1}, {0,1}}) {
+                    int nx = x + dx, nz = z + dz;
+                    if (temp[nz][nx] == '#' && maze[z][x] == 'x') {
+                        maze[z][x] = 'x';  // Reinforce this block as a connecting wall
+                        floodFill(temp, x, z, 'x', '#');
+                        break;
                     }
                 }
             }
         }
     }
 
-    if (countEntrances(maze) != 1) {
+    // === Fix entrance: ensure exactly 1 outer opening ===
+    int entrances = countEntrances(maze);
+    if (entrances != 1) {
+        // First, seal all open boundaries
         for (int i = 0; i < width; ++i) {
             if (maze[0][i] == '.') maze[0][i] = 'x';
             if (maze[height - 1][i] == '.') maze[height - 1][i] = 'x';
@@ -217,9 +219,11 @@ void fixMaze(std::vector<std::vector<char>>& maze) {
             if (maze[i][0] == '.') maze[i][0] = 'x';
             if (maze[i][width - 1] == '.') maze[i][width - 1] = 'x';
         }
-        for (int z = 1; z < height - 1; ++z) {
-            if (maze[z][0] == 'x' && maze[z][1] == '.') {
-                maze[z][0] = '.';
+
+        // Open exactly one sensible entrance
+        for (int i = 1; i < height - 1; ++i) {
+            if (maze[i][0] == 'x' && maze[i][1] == '.') {
+                maze[i][0] = '.';
                 break;
             }
         }

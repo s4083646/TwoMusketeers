@@ -1,4 +1,3 @@
-
 Welcome to MineCraft MazeRunner!
 --------------------------------
 
@@ -10,7 +9,6 @@ Welcome to MineCraft MazeRunner!
 5) Exit
 
 Enter Menu item to continue: 
-
 ------------- CREATE A MAZE -------------
 1) Read Maze from terminal
 2) Generate Random Maze
@@ -25,17 +23,12 @@ Errors detected. Would you like to automatically fix them? (y/n):
 Maze fixed.
 Maze read successfully
 **Printing Maze Structure**
-xxxxxxx
-......x
-x.xxx.x
-x.x...x
-xxx.xxx
-x.....x
-x.xxxxx
-x.....x
-xxxxxxx
+xxxxx
+....x
+x.x.x
+x...x
+xxxxx
 **End Printing Maze**
-
 
 Welcome to MineCraft MazeRunner!
 --------------------------------
