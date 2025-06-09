@@ -71,10 +71,10 @@
 
 - Expected Behavior:  
   - Program should detect the player is trapped.
-  - It should output a message like "You are trapped!"
+  - It should output a message like "[❌] Warning: No valid exit found to place blue carpet!"
 
 - Validation:
   - Uses menu: 3 → 3 (Solve Maze → Back).
   - Test passes if:
     - No carpet path is shown.
-    - Message about being trapped is printed.
+    - An error message about no exit is printed.
