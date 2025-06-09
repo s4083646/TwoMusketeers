@@ -31,7 +31,7 @@
 
 ## Team Member 3 – (Shahira)
 
-- `test_manualTeleport_testmode`:  
+- `solve_maze_manual_teleport_testmode`:  
 - Purpose:  
   Tests manual teleportation in test mode. The agent should teleport to the furthest walkable path.
   
@@ -51,7 +51,7 @@
 --
 
 
-- `test_escapeRoute_success`:  
+- `solve_maze_escape_success`:  
 - Purpose:  
   Validates that the escape route is correctly shown in a solvable maze.
   
@@ -70,7 +70,7 @@
 --
 
 
-- `test_noEscape_trapped`:  
+- `solve_maze_no_escape`:  
 - Purpose:  
   Checks handling of mazes with no valid exit.
 
