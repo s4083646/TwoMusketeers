@@ -1,6 +1,10 @@
 #include "MazeReadWriteUtils.h"
+#include <limits>
+#include <tuple>
+#include <vector>
+#include <iostream>
+#include <queue>
 
-// === Input Handling ===
 bool ReadBasePoint(mcpp::Coordinate& start) {
     std::string input = "";
     bool success = true;
@@ -67,18 +71,24 @@ bool readMaze(std::vector<std::vector<char>>& maze, mcpp::Coordinate& basePoint)
         }
     }
 
-    if (success && !validateMaze(maze)) {
-        std::cout << "Errors detected. Would you like to automatically fix them? (y/n): " << std::endl;
-        char option;
-        std::cin >> option;
-        if (option == 'y' || option == 'Y') {
-            fixMaze(maze);
-            std::cout << "Maze fixed." << std::endl;
+    if (success) {
+        if (!validateMaze(maze)) {
+            std::cout << "Errors detected. Would you like to automatically fix them? (y/n): " << std::endl;
+            char option;
+            std::cin >> option;
+            if (option == 'y' || option == 'Y') {
+                fixMaze(maze);
+                std::cout << "Maze fixed." << std::endl;
+            } else {
+                std::cout << "Maze rejected. Please enter a new maze." << std::endl;
+                return false;
+            }
         } else {
-            std::cout << "Maze rejected. Please enter a new maze." << std::endl;
-            return false;
+            // Run the auto-exit logic regardless of initial validity
+            fixMaze(maze);
         }
     }
+
 
     return success;
 }
@@ -92,7 +102,6 @@ void printMaze(std::vector<std::vector<char>>& maze) {
     std::cout << "**End Printing Maze**" << std::endl << std::endl;
 }
 
-// === Maze Validation ===
 bool floodFill(std::vector<std::vector<char>>& maze, int x, int z, char target, char marker) {
     if (maze[z][x] != target) return false;
 
@@ -175,13 +184,11 @@ void fixMaze(std::vector<std::vector<char>>& maze) {
     for (int z = 1; z < height - 1; ++z) {
         for (int x = 1; x < width - 1; ++x) {
             if (temp[z][x] == '.') {
-                // Find a neighbor that is already reachable (marked 'o')
                 for (auto [dx, dz] : {std::pair{-1,0}, {1,0}, {0,-1}, {0,1}}) {
                     int nx = x + dx, nz = z + dz;
                     if (temp[nz][nx] == 'o' && maze[z][x] == '.') {
-                        // Connect the isolated region by removing wall between (x,z) and (nx,nz)
-                        maze[z][x] = '.';  // Carve this exact cell
-                        floodFill(temp, x, z, '.', 'o');  // Merge into connected region
+                        maze[z][x] = '.';
+                        floodFill(temp, x, z, '.', 'o');
                         break;
                     }
                 }
@@ -198,7 +205,7 @@ void fixMaze(std::vector<std::vector<char>>& maze) {
                 for (auto [dx, dz] : {std::pair{-1,0}, {1,0}, {0,-1}, {0,1}}) {
                     int nx = x + dx, nz = z + dz;
                     if (temp[nz][nx] == '#' && maze[z][x] == 'x') {
-                        maze[z][x] = 'x';  // Reinforce this block as a connecting wall
+                        maze[z][x] = 'x';
                         floodFill(temp, x, z, 'x', '#');
                         break;
                     }
@@ -210,7 +217,6 @@ void fixMaze(std::vector<std::vector<char>>& maze) {
     // === Fix entrance: ensure exactly 1 outer opening ===
     int entrances = countEntrances(maze);
     if (entrances != 1) {
-        // First, seal all open boundaries
         for (int i = 0; i < width; ++i) {
             if (maze[0][i] == '.') maze[0][i] = 'x';
             if (maze[height - 1][i] == '.') maze[height - 1][i] = 'x';
@@ -220,10 +226,28 @@ void fixMaze(std::vector<std::vector<char>>& maze) {
             if (maze[i][width - 1] == '.') maze[i][width - 1] = 'x';
         }
 
-        // Open exactly one sensible entrance
         for (int i = 1; i < height - 1; ++i) {
             if (maze[i][0] == 'x' && maze[i][1] == '.') {
                 maze[i][0] = '.';
+                break;
+            }
+        }
+    }
+
+    // === Ensure a valid exit exists on the right side ===
+    bool hasExit = false;
+    for (int z = 1; z < height - 1; ++z) {
+        if (maze[z][width - 1] == '.' || maze[z][width - 2] == '.') {
+            hasExit = true;
+            break;
+        }
+    }
+
+    if (!hasExit) {
+        for (int z = height - 2; z > 0; --z) {
+            if (maze[z][width - 2] == '.') {
+                maze[z][width - 1] = '.';
+                std::cout << "[FixMaze] Forced exit at [" << z << "][" << width - 1 << "]\n";
                 break;
             }
         }

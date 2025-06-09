@@ -70,6 +70,8 @@ void MazeHandler::createRandomLayout(std::vector<std::string>& layout, int heigh
     if (!options.empty()) {
         goalRow = options[engine() % options.size()];
         layout[goalRow][width - 1] = '.';
+    } else {
+        goalRow = -1;
     }
 }
 
@@ -121,16 +123,46 @@ void MazeHandler::renderMazeInWorld(const std::vector<std::string>& layout, int 
                 } else {
                     mc.setBlock(pos, mcpp::Blocks::AIR);
                 }
-
-                if (type == '.' && col == len - 1 && row == goalRow && h == 0) {
-                    mcpp::Coordinate exitCarpet(x + 1, y, z);
-                    captureChange(exitCarpet);
-                    mc.setBlock(exitCarpet, mcpp::Blocks::BLUE_CARPET);
-                }
             }
         }
     }
+
+    // ✅ UNIVERSAL EXIT DETECTION & CARPET PLACEMENT
+    bool blueCarpetPlaced = false;
+
+    for (int row = 0; row < wid; ++row) {
+        for (int col = 0; col < len; ++col) {
+            char type = layout[row][col];
+
+            // Only check border tiles
+            if (!(row == 0 || row == wid - 1 || col == 0 || col == len - 1)) continue;
+
+            if (type == '.' && !blueCarpetPlaced) {
+                int x = origin.x + col;
+                int z = origin.z + row;
+
+                mcpp::Coordinate carpet;
+
+                if (col == 0)         carpet = mcpp::Coordinate(x - 1, y, z); // left edge
+                else if (col == len - 1) carpet = mcpp::Coordinate(x + 1, y, z); // right edge
+                else if (row == 0)       carpet = mcpp::Coordinate(x, y, z - 1); // top edge
+                else if (row == wid - 1) carpet = mcpp::Coordinate(x, y, z + 1); // bottom edge
+
+                captureChange(carpet);
+                mc.setBlock(carpet, mcpp::Blocks::BLUE_CARPET);
+
+                std::cout << "[✔] Blue carpet placed at: (" << carpet.x << ", " << carpet.y << ", " << carpet.z << ")" << std::endl;
+                blueCarpetPlaced = true;
+            }
+        }
+    }
+
+    if (!blueCarpetPlaced) {
+        std::cout << "[❌] Warning: No valid exit found to place blue carpet!" << std::endl;
+    }
 }
+
+
 
 void MazeHandler::moveToRandomStart(const std::vector<std::string>& layout, mcpp::Coordinate origin) {
     std::vector<mcpp::Coordinate> candidates;
@@ -160,36 +192,66 @@ void MazeHandler::moveToDeepestPoint(const std::vector<std::string>& layout, mcp
     int h = layout.size();
     int w = layout[0].size();
 
-    int startZ = goalRow;
-    int startX = w - 1;
-
+    // Step 1: find an outer-border '.' tile (the exit)
     std::queue<std::pair<int, int>> bfs;
-    std::vector<std::vector<bool>> marked(h, std::vector<bool>(w, false));
-    bfs.push({startZ, startX});
-    marked[startZ][startX] = true;
+    std::vector<std::vector<int>> dist(h, std::vector<int>(w, -1));
 
-    int farX = startX, farZ = startZ;
+    for (int z = 0; z < h; ++z) {
+        for (int x = 0; x < w; ++x) {
+            bool onEdge = (z == 0 || z == h - 1 || x == 0 || x == w - 1);
+            if (onEdge && layout[z][x] == '.') {
+                bfs.push({z, x});
+                dist[z][x] = 0;
+            }
+        }
+    }
+
+    if (bfs.empty()) {
+        std::cout << "[❌] No outer exit found in maze for deepest point search.\n";
+        return;
+    }
+
+    // Step 2: BFS to find furthest reachable point
+    std::pair<int, int> deepest = bfs.front();
+    static const int dz[4] = {0, 0, 1, -1};
+    static const int dx[4] = {1, -1, 0, 0};
 
     while (!bfs.empty()) {
-        auto [z, x] = bfs.front();
-        bfs.pop();
-
-        farX = x;
-        farZ = z;
-
-        static const int dz[4] = {0, 0, 1, -1};
-        static const int dx[4] = {1, -1, 0, 0};
+        auto [z, x] = bfs.front(); bfs.pop();
+        deepest = {z, x};
 
         for (int d = 0; d < 4; ++d) {
             int nz = z + dz[d];
             int nx = x + dx[d];
-            if (nz >= 0 && nz < h && nx >= 0 && nx < w && !marked[nz][nx] && layout[nz][nx] == '.') {
-                marked[nz][nx] = true;
+
+            if (nz >= 0 && nz < h && nx >= 0 && nx < w && layout[nz][nx] == '.' && dist[nz][nx] == -1) {
+                dist[nz][nx] = dist[z][x] + 1;
                 bfs.push({nz, nx});
             }
         }
     }
 
-    mcpp::Coordinate dest = mcpp::Coordinate(origin.x + farX, origin.y + 1, origin.z + farZ);
-    mc.doCommand("tp @a " + std::to_string(dest.x) + " " + std::to_string(dest.y) + " " + std::to_string(dest.z));
+    int targetX = origin.x + deepest.second;
+    int targetZ = origin.z + deepest.first;
+    int targetY = origin.y + 1;
+
+    mc.doCommand("tp @a " + std::to_string(targetX) + " " + std::to_string(targetY) + " " + std::to_string(targetZ));
+}
+
+
+void MazeHandler::setGoalRowFromMaze(const std::vector<std::string>& layout) {
+    int h = layout.size();
+    if (h == 0) {
+        goalRow = -1;
+        return;
+    }
+    int w = layout[0].size();
+    goalRow = -1;
+
+    for (int z = 1; z < h - 1; ++z) {
+        if (layout[z][w - 1] == '.' || layout[z][w - 2] == '.') {
+            goalRow = z;
+            return;
+        }
+    }
 }

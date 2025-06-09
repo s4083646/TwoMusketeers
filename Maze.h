@@ -16,6 +16,9 @@ public:
     void moveToDeepestPoint(const std::vector<std::string>& layout, mcpp::Coordinate origin);
     void revertChanges();
 
+    // NEW
+    void setGoalRowFromMaze(const std::vector<std::string>& layout);
+
 private:
     struct ChangeRecord {
         mcpp::Coordinate location;

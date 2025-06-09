@@ -59,6 +59,14 @@ int main(int argc, char* argv[]) {
                         std::cout << "Maze read successfully" << std::endl;
                         printMaze(mazeVec);
 
+                        std::vector<std::string> mazeAsString;
+                        for (const auto& row : mazeVec) {
+                            mazeAsString.emplace_back(row.begin(), row.end());
+                        }
+                        mazeHandler.setGoalRowFromMaze(mazeAsString);
+
+
+                        // Copy fixed structure into 'maze'
                         maze.clear();
                         for (const auto& row : mazeVec) {
                             maze.emplace_back(row.begin(), row.end());
@@ -122,6 +130,7 @@ int main(int argc, char* argv[]) {
                 + " minecraft:air";
             mc.doCommand(clearMazeArea);
 
+            mazeHandler.setGoalRowFromMaze(maze);  // still safe to call here
             mazeHandler.renderMazeInWorld(maze, mazeLength, mazeWidth, buildStart);
         }
 
