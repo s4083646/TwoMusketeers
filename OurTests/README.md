@@ -24,10 +24,57 @@
 ## Team Member 3 – (Shahira)
 
 - `test_manualTeleport_testmode`:  
-  Tests manual teleportation in test mode. The agent should teleport to a random walkable position.
+- Purpose:  
+  Tests manual teleportation in test mode. The agent should teleport to the furthest walkable path.
+  
+- Input:  
+  A maze with multiple open branches and dead ends.
+
+- Expected Behavior:  
+  - When manual teleport is triggered, the agent should teleport to the furthest reachable tile using BFS.
+  - This ensures the furthest valid walkable point is selected.
+  
+- Validation:
+  - Uses menu sequence: 3 → 2 → 3 (Solve Maze → Show Escape Route → Back).
+  - Output should include coordinates of furthest walkable point.
+  - Teleportation message should confirm correct position.
+
+
+--
+
 
 - `test_escapeRoute_success`:  
-  Valid maze with a clear path. The agent should follow and display the escape route using lime carpet.
+- Purpose:  
+  Validates that the escape route is correctly shown in a solvable maze.
+  
+- Input:  
+  A maze with one entrance and a valid exit path.
+
+- Expected Behavior:  
+  - The agent should display the escape route using lime carpet blocks.
+  - No "trapped" message should be shown.
+
+- Validation:
+  - Uses menu sequence: 3 → 1 → 3 (Solve Maze → Solve Manually → Back).
+  - Output should show a printed path and confirmation message.
+
+
+--
+
 
 - `test_noEscape_trapped`:  
-  Maze has isolated walkable zones and no path to exit. Should trigger “you are trapped” message.
+- Purpose:  
+  Checks handling of mazes with no valid exit.
+
+- Input:  
+  A maze where the player is enclosed or no path leads to the exit.
+
+- Expected Behavior:  
+  - Program should detect the player is trapped.
+  - It should output a message like "You are trapped!"
+
+- Validation:
+  - Uses menu: 3 → 3 (Solve Maze → Back).
+  - Test passes if:
+    - No carpet path is shown.
+    - Message about being trapped is printed.
