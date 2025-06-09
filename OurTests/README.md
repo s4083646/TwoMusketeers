@@ -3,17 +3,16 @@
 - `test_readMazeTerminal`: Testing reading maze from terminal, normal case. Read a 7 by 5 maze from terminal.
 
 
-## Team Member 3 (Dhiya)
+## Team Member 1 (Dhiya Batrisya Binti Norfaiz)
 
-- `test_readMazeTerminal_valid`:  
-  Testing reading a maze from terminal, normal case.  
-  Read a 7×5 maze with a valid exit and no loops or isolated areas.
+- `manual_maze_read_terminal`:  
+  Reads a valid 7×9 maze entered manually from the terminal. The maze has a single valid entrance and no disconnected areas or loops. It passes validation and does not require any fixes.
 
-- `test_missingExit`:  
-  Tests a maze with no exit. The program should detect the issue and prompt to auto-fix it.
+- `manual_maze_missing_exit`:  
+  Tests a maze that lacks an exit. The system correctly detects this and automatically places a valid exit along the rightmost column of the bottom rows, following the assignment rules.
 
-- `test_loopDetected`:  
-  Tests a maze with a loop structure. Validation should detect the loop and offer to fix it.
+- `manual_maze_with_loop`:  
+  ests a maze that contains a loop or disconnected segment. The fix routine connects any isolated paths to the main route by calculating the shortest Manhattan path and integrating it, thus ensuring a valid perfect maze structure.
 
 
 
