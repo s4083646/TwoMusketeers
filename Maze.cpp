@@ -127,7 +127,6 @@ void MazeHandler::renderMazeInWorld(const std::vector<std::string>& layout, int 
         }
     }
 
-    // ✅ UNIVERSAL EXIT DETECTION & CARPET PLACEMENT
     bool blueCarpetPlaced = false;
 
     for (int row = 0; row < wid; ++row) {
@@ -151,7 +150,6 @@ void MazeHandler::renderMazeInWorld(const std::vector<std::string>& layout, int 
                 captureChange(carpet);
                 mc.setBlock(carpet, mcpp::Blocks::BLUE_CARPET);
 
-                std::cout << "[✔] Blue carpet placed at: (" << carpet.x << ", " << carpet.y << ", " << carpet.z << ")" << std::endl;
                 blueCarpetPlaced = true;
             }
         }

@@ -26,11 +26,11 @@ Maze fixed.
 Maze read successfully
 **Printing Maze Structure**
 xxxxxxx
-..x...x
-x.xxx.x
-x...x.x
-xxx.x.x
-x.....x
+xx..xxx
+xx.xx.x
+xx....x
+xxx.xxx
+xx....x
 xxxxxxx
 **End Printing Maze**
 
@@ -46,6 +46,7 @@ Welcome to MineCraft MazeRunner!
 5) Exit
 
 Enter Menu item to continue: 
+[❌] Warning: No valid exit found to place blue carpet!
 
 Welcome to MineCraft MazeRunner!
 --------------------------------
@@ -58,14 +59,6 @@ Welcome to MineCraft MazeRunner!
 5) Exit
 
 Enter Menu item to continue: 
-
-------------- SOLVE MAZE -------------
-1) Solve Manually
-2) Show Escape Route
-3) Back
-
-Enter Menu item to continue: 
-No available escape path found.
 
 ------------- SOLVE MAZE -------------
 1) Solve Manually
