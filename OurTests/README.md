@@ -6,14 +6,23 @@
 ## Team Member 1 (Dhiya Batrisya Binti Norfaiz)
 
 - `manual_maze_read_terminal`:  
-  Reads a valid 7×9 maze entered manually from the terminal. The maze has a single valid entrance and no disconnected areas or loops. It passes validation and does not require any fixes.
+  This test checks if the system correctly reads and accepts a clean, valid maze input from the terminal.
+   -The maze has a single valid entrance and a clear path to the exit.
+   -There are no disconnected segments or internal loops.
+   -Expected behavior: The program accepts the input without requiring any fixes.
 
 - `manual_maze_missing_exit`:  
-  Tests a maze that lacks an exit. The system correctly detects this and automatically places a valid exit along the rightmost column of the bottom rows, following the assignment rules.
+  This test evaluates the program’s ability to detect when a maze lacks an exit.
+   -The input is a sealed maze with no exit point on the outer boundary.
+   -The system identifies this issue and automatically opens an exit in the correct position (usually along the rightmost column)according to the spec.
+   -Expected behavior: The maze is modified with a new exit, and validation passes afterward.
 
 - `manual_maze_with_loop`:  
-  ests a maze that contains a loop or disconnected segment. The fix routine connects any isolated paths to the main route by calculating the shortest Manhattan path and integrating it, thus ensuring a valid perfect maze structure.
-
+  This test involves a maze where one or more paths are disconnected or form internal loops.
+   -The validator detects the issue and triggers a fix.
+   -The fix routine identifies isolated segments and connects them to the main path using a shortest path approach (Manhattan distance).
+   -After fixing, the maze contains a single connected region with only one valid entrance and exit.
+   -Expected behavior: The program modifies the maze structure to ensure all regions are reachable and compliant with perfect maze rules.
 
 
 ## Team Member 2 (Sahar)
